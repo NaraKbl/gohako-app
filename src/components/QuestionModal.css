@@ -1,0 +1,83 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  padding: 1.5rem;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-family: system-ui, sans-serif;
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+.modal-submit {
+  align-self: flex-end;
+  padding: 0.6rem 1.2rem;
+  background-color: #646cff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.modal-submit:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.modal-error {
+  color: #e53e3e;
+  margin-top: 0.5rem;
+}
+
+.modal-answer {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f7f8fa;
+  border-radius: 8px;
+}
+
+.modal-answer h4 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #444;
+}

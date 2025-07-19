@@ -1,0 +1,124 @@
+.word-detail-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+.word-detail-card {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.kanji-large {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #1a1a1a;
+}
+
+.kana {
+  font-size: 1.5rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.traduction {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.section-analyse {
+  text-align: left;
+  margin-top: 1rem;
+  background-color: #f0f0ff;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.section-analyse h4 {
+  margin-bottom: 0.5rem;
+  color: #1a1a1a;
+}
+
+.section-analyse pre {
+  white-space: pre-wrap;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #222;
+}
+
+.exemple-block {
+  margin-bottom: 1rem;
+}
+
+.section-humour {
+  background-color: #fff6e5;
+  margin-top: 1rem;
+}
+
+.questions-btn {
+  display: block;
+  width: fit-content;
+  margin: 1.5rem auto 1rem;
+  background-color: #646cff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.questions-btn:hover {
+  background-color: #535bf2;
+}
+
+.questions-section {
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.question-item {
+  background-color: #e1e1fa;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.question-item .q {
+  font-weight: bold;
+}
+
+.question-item .a {
+  margin-top: 0.5rem;
+}
+
+.no-questions {
+  font-style: italic;
+  color: #666;
+}
+
+.retour-btn {
+  display: block;
+  width: fit-content;
+  margin: 2rem auto 0;
+  padding: 0.5rem 1rem;
+  background-color: #e2e2fa;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.retour-btn:hover {
+  background-color: #d0d0f5;
+}

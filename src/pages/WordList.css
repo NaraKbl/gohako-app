@@ -1,0 +1,41 @@
+.wordlist-container {
+  padding: 2rem;
+}
+
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.sort-control label {
+  font-weight: 500;
+  color: #333;
+}
+
+.sort-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.sort-select:hover,
+.sort-select:focus {
+  border-color: #646cff;
+  outline: none;
+}
+
+.card-list {
+  display: grid;
+  /* chaque carte fait au minimum 300px et s’étire jusqu’à 1fr */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem; /* espace entre les cartes */
+  margin-top: 1rem;
+}
+
+

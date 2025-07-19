@@ -1,0 +1,95 @@
+.addword-container {
+  padding: 2rem;
+}
+
+.addword-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.addword-button {
+  display: block;
+  margin: 0 auto;
+  margin-top: 0.3rem;
+  padding: 0.6rem 1.2rem;
+  background-color: #646cff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.addword-button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.loading-mascot {
+  display: block;
+  width: 100px; /* réduit la taille de l'image */
+  height: auto;
+  margin: 1rem auto;
+}
+
+.loading-message {
+  text-align: center;
+  font-style: italic;
+  color: #555;
+}
+
+.fiche-card {
+  margin-top: 2rem;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Styles similaires à WordDetail pour la fiche */
+.kanji-large {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.kana {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.traduction {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.section-analyse {
+  background-color: #f0f0ff;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.exemple-block {
+  margin-bottom: 1rem;
+}
+
+.section-humour {
+  background-color: #fff6e5;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.addword-mascotte {
+  display: block;
+  margin: 1rem auto;
+  max-width: 150px;
+  width: 100%;
+}

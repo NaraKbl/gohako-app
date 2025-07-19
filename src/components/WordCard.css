@@ -1,0 +1,63 @@
+.word-card {
+  position: relative;
+  border: 1px solid #ddd;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #fdfdfd;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.word-card:hover {
+  background-color: #f0f0ff;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.6rem;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #888;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.delete-btn:hover {
+  color: #e00;
+}
+
+.word-kanji {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1a1a1a;
+}
+
+.word-kana {
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.word-fr {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  color: #444;
+}
+
+.question-button {
+  position: absolute;
+  bottom: 0.7rem;
+  right: 1rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+  border: none;
+  background-color: #e1e1fa;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.question-button:hover {
+  background-color: #cfcff5;
+}

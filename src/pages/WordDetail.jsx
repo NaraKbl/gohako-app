@@ -1,0 +1,148 @@
+// src/pages/WordDetail.jsx
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import QuestionModal from "../components/QuestionModal";
+import "./WordDetail.css";
+
+export default function WordDetail() {
+  const API_URL = "https://api-gohako.onrender.com";
+
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [fiche, setFiche] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [showQuestions, setShowQuestions] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  // 1️⃣ Charger la fiche et ses questions
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      setError(false);
+      try {
+        const resF = await fetch(`${API_URL}/fiches/${id}`, { cache: "no-store" });
+        if (resF.status === 404) {
+          setError(true);
+          return;
+        }
+        if (!resF.ok) throw new Error(resF.statusText);
+        const dataF = await resF.json();
+        setFiche(dataF);
+
+        const resQ = await fetch(`${API_URL}/questions?wordId=${id}`, { cache: "no-store" });
+        if (!resQ.ok) throw new Error(resQ.statusText);
+        const dataQ = await resQ.json();
+        setQuestions(dataQ);
+      } catch (err) {
+        console.error("Erreur chargement WordDetail :", err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [id]);
+
+  const handleNewQuestion = (savedQ) => {
+    setQuestions(prev => [...prev, savedQ]);
+  };
+
+  if (loading) {
+    return (
+      <div className="word-detail-card">
+        <h2>Chargement…</h2>
+      </div>
+    );
+  }
+  if (error || !fiche) {
+    return (
+      <div className="word-detail-card">
+        <h2>Mot introuvable</h2>
+        <button className="retour-btn" onClick={() => navigate("/mots")}>
+          ⬅️ Retour
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="word-detail-container">
+      <div className="word-detail-card">
+        <h2>Détail du mot</h2>
+        <div className="kanji-large">{fiche.kanji || fiche.kana}</div>
+        {fiche.kana && <div className="kana">{fiche.kana}</div>}
+        <div className="traduction">{fiche.fr}</div>
+
+        <div className="section-analyse">
+          <h4>Analyse grammaticale :</h4>
+          <pre>{fiche.analyse}</pre>
+        </div>
+
+        {fiche.exemples && (
+          <div className="section-analyse">
+            <h4>Exemples d’usage :</h4>
+            {fiche.exemples.map((ex, i) => (
+              <div key={i} className="exemple-block">
+                <p><em>{ex.niveau} :</em> {ex.phrase}</p>
+                <p>Traduction : {ex.traduction}</p>
+                <p>Explication : {ex.explication}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {fiche.humour && (
+          <div className="section-analyse section-humour">
+            <h4>Note drôle :</h4>
+            <p>{fiche.humour}</p>
+          </div>
+        )}
+
+        <div className="questions-controls">
+          <button
+            className="questions-btn"
+            onClick={() => setShowQuestions(v => !v)}
+          >
+            {showQuestions ? "Masquer mes questions" : "Mes questions"}
+          </button>
+          <button
+            className="ask-btn"
+            onClick={() => setShowModal(true)}
+          >
+            Poser une question
+          </button>
+        </div>
+
+        {showQuestions && (
+          <div className="questions-section">
+            {questions.length === 0 ? (
+              <p className="no-questions">Aucune question pour ce mot.</p>
+            ) : (
+              questions.map(q => (
+                <div key={q.id} className="question-item">
+                  <p className="q"><strong>Q :</strong> {q.question}</p>
+                  <p className="a"><strong>R :</strong> {q.answer}</p>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {showModal && (
+          <QuestionModal
+            word={fiche}
+            onClose={() => setShowModal(false)}
+            onNewQuestion={handleNewQuestion}
+          />
+        )}
+
+        <button className="retour-btn" onClick={() => navigate("/mots")}>
+          ⬅️ Retour à la liste
+        </button>
+      </div>
+    </div>
+  );
+}
