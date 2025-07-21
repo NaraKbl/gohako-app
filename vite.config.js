@@ -6,8 +6,6 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // toute requête commençant par /fiches
-      // sera redirigée vers http://localhost:3001
       "/fiches": {
         target: "http://localhost:3001",
         changeOrigin: true,
@@ -20,6 +18,11 @@ export default defineConfig({
         target: "http://localhost:3001",
         changeOrigin: true,
       },
+    }
+  },
+  build: {
+    rollupOptions: {
+      external: ["@supabase/supabase-js"]
     }
   }
 });
