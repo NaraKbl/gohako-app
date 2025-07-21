@@ -4,10 +4,10 @@ import { v4 as uuidv4 } from "uuid";
 import "./Chat.css";
 import Mascotte from "../components/Mascotte";
 import AnswerImg from "../assets/gohakoface.png";
+import { supabase } from "../supabase";
 
 export default function Chat() {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-  const API_URL = "https://api-gohako.onrender.com";
 
   const [conversations, setConversations] = useState([]);
   const [currentId, setCurrentId] = useState(null);
@@ -22,9 +22,11 @@ export default function Chat() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch(`${API_URL}/conversations`);
-        if (!res.ok) throw new Error(res.statusText);
-        const data = await res.json();
+        const { data, error } = await supabase
+          .from("conversations")
+          .select("*")
+          .order("id", { ascending: false });
+        if (error) throw error;
         setConversations(data);
       } catch (err) {
         console.error("Erreur chargement conversations :", err);
@@ -34,58 +36,53 @@ export default function Chat() {
   }, []);
 
   const toggleSidebar = () => {
-    setIsSidebarOpen(open => !open);
+    setIsSidebarOpen((open) => !open);
     setMenuOpenId(null);
   };
 
-  const selectConversation = id => {
+  const selectConversation = (id) => {
     setCurrentId(id);
     setInput("");
     setMenuOpenId(null);
   };
 
-  const openRenameModal = id => {
-    const conv = conversations.find(c => c.id === id);
+  const openRenameModal = (id) => {
+    const conv = conversations.find((c) => c.id === id);
     setRenameInput(conv.title);
     setRenameModalId(id);
     setMenuOpenId(null);
   };
 
   const confirmRename = async () => {
-    setConversations(prev =>
-      prev.map(c =>
+    setConversations((prev) =>
+      prev.map((c) =>
         c.id === renameModalId ? { ...c, title: renameInput } : c
       )
     );
     try {
-      await fetch(`${API_URL}/conversations/${renameModalId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: renameInput }),
-      });
+      await supabase
+        .from("conversations")
+        .update({ title: renameInput })
+        .eq("id", renameModalId);
     } catch (err) {
       console.error("Erreur renommage conversation :", err);
     }
     setRenameModalId(null);
   };
 
-  const openDeleteModal = id => {
+  const openDeleteModal = (id) => {
     setDeleteModalId(id);
     setMenuOpenId(null);
   };
 
   const confirmDelete = async () => {
-    setConversations(prev => prev.filter(c => c.id !== deleteModalId));
+    setConversations((prev) => prev.filter((c) => c.id !== deleteModalId));
     if (deleteModalId === currentId) {
-      setCurrentId(prevConvs => {
-        const remaining = conversations.filter(c => c.id !== deleteModalId);
-        return remaining[0]?.id || null;
-      });
+      const remaining = conversations.filter((c) => c.id !== deleteModalId);
+      setCurrentId(remaining[0]?.id || null);
     }
     try {
-      await fetch(`${API_URL}/conversations/${deleteModalId}`, {
-        method: "DELETE",
-      });
+      await supabase.from("conversations").delete().eq("id", deleteModalId);
     } catch (err) {
       console.error("Erreur suppression conversation :", err);
     }
@@ -98,7 +95,7 @@ export default function Chat() {
     setMenuOpenId(null);
   };
 
-  const createConversation = async firstMsg => {
+  const createConversation = async (firstMsg) => {
     const id = uuidv4();
     const systemMsg = {
       role: "system",
@@ -117,19 +114,18 @@ export default function Chat() {
     const newConv = { id, title, messages };
 
     try {
-      const res = await fetch(`${API_URL}/conversations`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newConv),
-      });
-      if (!res.ok) throw new Error(res.statusText);
-      const saved = await res.json();
-      setConversations(prev => [saved, ...prev]);
-      setCurrentId(saved.id);
-      return saved;
+      const { data, error } = await supabase
+        .from("conversations")
+        .insert(newConv)
+        .select()
+        .single();
+      if (error) throw error;
+      setConversations((prev) => [data, ...prev]);
+      setCurrentId(data.id);
+      return data;
     } catch (err) {
       console.error("Erreur création conversation :", err);
-      setConversations(prev => [newConv, ...prev]);
+      setConversations((prev) => [newConv, ...prev]);
       setCurrentId(newConv.id);
       return newConv;
     }
@@ -140,20 +136,19 @@ export default function Chat() {
     setLoading(true);
 
     try {
-      let conv = conversations.find(c => c.id === currentId);
+      let conv = conversations.find((c) => c.id === currentId);
       if (!conv) {
         conv = await createConversation(input);
       } else {
         const userMsg = { role: "user", content: input };
         conv = { ...conv, messages: [...conv.messages, userMsg] };
-        setConversations(prev =>
-          prev.map(c => (c.id === conv.id ? conv : c))
+        setConversations((prev) =>
+          prev.map((c) => (c.id === conv.id ? conv : c))
         );
-        await fetch(`${API_URL}/conversations/${conv.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(conv),
-        });
+        await supabase
+          .from("conversations")
+          .update({ messages: conv.messages })
+          .eq("id", conv.id);
       }
 
       setInput("");
@@ -162,32 +157,31 @@ export default function Chat() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`
+          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
           model: "gpt-4",
           messages: conv.messages,
-          temperature: 0.7
-        })
+          temperature: 0.7,
+        }),
       });
       const data = await res.json();
       const assistantMsg = {
         role: "assistant",
-        content: data.choices[0].message.content
+        content: data.choices[0].message.content,
       };
 
       const updatedConv = {
         ...conv,
-        messages: [...conv.messages, assistantMsg]
+        messages: [...conv.messages, assistantMsg],
       };
-      setConversations(prev =>
-        prev.map(c => (c.id === updatedConv.id ? updatedConv : c))
+      setConversations((prev) =>
+        prev.map((c) => (c.id === updatedConv.id ? updatedConv : c))
       );
-      await fetch(`${API_URL}/conversations/${updatedConv.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedConv)
-      });
+      await supabase
+        .from("conversations")
+        .update({ messages: updatedConv.messages })
+        .eq("id", updatedConv.id);
     } catch (err) {
       console.error("Erreur sendMessage :", err);
     } finally {
@@ -196,8 +190,8 @@ export default function Chat() {
   };
 
   const currentConv =
-    conversations.find(c => c.id === currentId) || { messages: [] };
-  const visibleMsgs = currentConv.messages.filter(m => m.role !== "system");
+    conversations.find((c) => c.id === currentId) || { messages: [] };
+  const visibleMsgs = currentConv.messages.filter((m) => m.role !== "system");
 
   return (
     <div className="chat-app">
@@ -207,7 +201,7 @@ export default function Chat() {
             ➕ Conversation
           </button>
           <ul className="conv-list">
-            {conversations.map(c => (
+            {conversations.map((c) => (
               <li
                 key={c.id}
                 className={c.id === currentId ? "active" : ""}
@@ -216,7 +210,7 @@ export default function Chat() {
                 <span className="conv-title">{c.title}</span>
                 <button
                   className="conv-menu-btn"
-                  onClick={e => {
+                  onClick={(e) => {
                     e.stopPropagation();
                     setMenuOpenId(c.id);
                   }}
@@ -264,7 +258,9 @@ export default function Chat() {
                   <div className="content">{msg.content}</div>
                 </div>
               ) : (
-                <div key={i} className="message user">{msg.content}</div>
+                <div key={i} className="message user">
+                  {msg.content}
+                </div>
               )
             )
           )}
@@ -272,8 +268,8 @@ export default function Chat() {
         <div className="input-area">
           <textarea
             value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => {
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
@@ -289,12 +285,12 @@ export default function Chat() {
 
         {renameModalId && (
           <div className="modal-overlay" onClick={cancelModals}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <h3>Renommer la conversation</h3>
               <input
                 className="modal-input"
                 value={renameInput}
-                onChange={e => setRenameInput(e.target.value)}
+                onChange={(e) => setRenameInput(e.target.value)}
               />
               <div className="modal-actions">
                 <button onClick={confirmRename}>Confirmer</button>
@@ -306,7 +302,7 @@ export default function Chat() {
 
         {deleteModalId && (
           <div className="modal-overlay" onClick={cancelModals}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <h3>Supprimer la conversation ?</h3>
               <div className="modal-actions">
                 <button onClick={confirmDelete}>Supprimer</button>
