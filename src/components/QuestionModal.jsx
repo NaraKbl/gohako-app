@@ -1,11 +1,10 @@
-// src/components/QuestionModal.jsx
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "./QuestionModal.css";
+import { supabase } from "../supabaseClient";
 
 export default function QuestionModal({ word, onClose, onNewQuestion }) {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-  const API_URL = "https://api-gohako.onrender.com";
 
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState(null);
@@ -13,7 +12,7 @@ export default function QuestionModal({ word, onClose, onNewQuestion }) {
   const [error, setError] = useState(null);
   const [saved, setSaved] = useState(false);
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!question.trim()) return;
 
@@ -21,7 +20,7 @@ export default function QuestionModal({ word, onClose, onNewQuestion }) {
     setError(null);
 
     let reply;
-    // 1️⃣ Appel à OpenAI
+    // 1️⃣ Appel OpenAI
     try {
       const messages = [
         {
@@ -53,32 +52,29 @@ export default function QuestionModal({ word, onClose, onNewQuestion }) {
       return;
     }
 
-    // 2️⃣ Préparer la question
-    const newQ = {
-      id: uuidv4(),
-      wordId: word.id,
-      question: question.trim(),
-      answer: reply,
-      timestamp: Date.now()
-    };
-
-    // 3️⃣ Persister dans json-server (Render)
+    // 2️⃣ Enregistrer dans Supabase
     try {
-      const postRes = await fetch(`${API_URL}/questions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newQ)
-      });
-      if (!postRes.ok) throw new Error(`POST /questions ${postRes.status}`);
-      const savedQ = await postRes.json();
+      const { data: savedQ, error: insertErr } = await supabase
+        .from("questions")
+        .insert([
+          {
+            id: uuidv4(),
+            wordId: word.id,
+            question: question.trim(),
+            answer: reply
+          }
+        ])
+        .select()
+        .single();
+      if (insertErr) throw insertErr;
 
-      // 4️⃣ Mettre à jour le parent
+      // 3️⃣ Mettre à jour le parent
       if (typeof onNewQuestion === "function") {
         onNewQuestion(savedQ);
       }
       setSaved(true);
     } catch (err) {
-      console.error("Erreur persistance question :", err);
+      console.error("Erreur Supabase :", err);
       setError("Impossible d’enregistrer la question.");
     } finally {
       setLoading(false);
@@ -87,14 +83,14 @@ export default function QuestionModal({ word, onClose, onNewQuestion }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✖️</button>
         <h3>Poser une question sur « {word.kanji || word.kana} »</h3>
 
         <form onSubmit={handleSubmit} className="modal-form">
           <textarea
             value={question}
-            onChange={e => setQuestion(e.target.value)}
+            onChange={(e) => setQuestion(e.target.value)}
             placeholder="Ta question..."
             rows={3}
             disabled={loading || saved}
