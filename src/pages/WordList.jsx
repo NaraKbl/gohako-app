@@ -1,27 +1,26 @@
-// src/pages/WordList.jsx
 import React, { useEffect, useState, useMemo } from "react";
 import WordCard from "../components/WordCard";
 import "./WordList.css";
 import { toRomaji } from "wanakana";
-
-const API_URL = "https://api-gohako.onrender.com";
+import { supabase } from "../supabaseClient"; // 👈 Assure-toi que ce fichier existe
 
 function WordList() {
   const [mesFiches, setMesFiches] = useState([]);
-  const [sortOption, setSortOption] = useState("recent"); // 'recent', 'oldest', 'alpha'
+  const [sortOption, setSortOption] = useState("recent");
 
-  // Charger les fiches depuis json-server (Render)
+  // Charger les fiches depuis Supabase
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch(`${API_URL}/fiches`, {
-          cache: "no-store"
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+        const { data, error } = await supabase
+          .from("fiches")
+          .select("*")
+          .order("created_at", { ascending: false }); // plus récentes d'abord
+
+        if (error) throw error;
         setMesFiches(data);
       } catch (err) {
-        console.error("Erreur chargement fiches :", err);
+        console.error("Erreur chargement fiches :", err.message);
       }
     };
     load();
@@ -30,13 +29,11 @@ function WordList() {
   // Supprimer une fiche
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`${API_URL}/fiches/${id}`, {
-        method: "DELETE"
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const { error } = await supabase.from("fiches").delete().eq("id", id);
+      if (error) throw error;
       setMesFiches(prev => prev.filter(f => f.id !== id));
     } catch (err) {
-      console.error("Erreur suppression fiche :", err);
+      console.error("Erreur suppression fiche :", err.message);
     }
   };
 
