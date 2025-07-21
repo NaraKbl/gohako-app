@@ -1,12 +1,10 @@
-// src/pages/WordDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import QuestionModal from "../components/QuestionModal";
 import "./WordDetail.css";
+import { supabase } from "../supabaseClient";
 
 export default function WordDetail() {
-  const API_URL = "https://api-gohako.onrender.com";
-
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -17,25 +15,27 @@ export default function WordDetail() {
   const [showQuestions, setShowQuestions] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  // 1️⃣ Charger la fiche et ses questions
+  // Charger la fiche et ses questions
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       setError(false);
       try {
-        const resF = await fetch(`${API_URL}/fiches/${id}`, { cache: "no-store" });
-        if (resF.status === 404) {
-          setError(true);
-          return;
-        }
-        if (!resF.ok) throw new Error(resF.statusText);
-        const dataF = await resF.json();
-        setFiche(dataF);
+        const { data: ficheData, error: ficheErr } = await supabase
+          .from("fiches")
+          .select("*")
+          .eq("id", id)
+          .single();
+        if (ficheErr || !ficheData) throw new Error("Mot introuvable");
+        setFiche(ficheData);
 
-        const resQ = await fetch(`${API_URL}/questions?wordId=${id}`, { cache: "no-store" });
-        if (!resQ.ok) throw new Error(resQ.statusText);
-        const dataQ = await resQ.json();
-        setQuestions(dataQ);
+        const { data: qData, error: qErr } = await supabase
+          .from("questions")
+          .select("*")
+          .eq("wordId", id)
+          .order("created_at", { ascending: true });
+        if (qErr) throw qErr;
+        setQuestions(qData || []);
       } catch (err) {
         console.error("Erreur chargement WordDetail :", err);
         setError(true);
