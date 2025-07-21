@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "./QuestionModal.css";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../supabase";
 
 export default function QuestionModal({ word, onClose, onNewQuestion }) {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;

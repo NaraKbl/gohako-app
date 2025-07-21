@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import WordCard from "../components/WordCard";
 import "./WordList.css";
 import { toRomaji } from "wanakana";
-import { supabase } from "../supabaseClient"; // 👈 Assure-toi que ce fichier existe
+import { supabase } from "../supabase"; // 👈 Assure-toi que ce fichier existe
 
 function WordList() {
   const [mesFiches, setMesFiches] = useState([]);

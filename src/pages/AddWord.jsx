@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import "./AddWord.css";
 import writingPng from "../assets/gohakowrite.png";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../supabase";
 
 export default function AddWord() {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;

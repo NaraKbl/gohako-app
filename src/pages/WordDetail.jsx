@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import QuestionModal from "../components/QuestionModal";
 import "./WordDetail.css";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../supabase";
 
 export default function WordDetail() {
   const { id } = useParams();
