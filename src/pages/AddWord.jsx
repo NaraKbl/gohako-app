@@ -74,7 +74,15 @@ Ne mets aucun texte en dehors de cet objet JSON. Dans la partie "phrase", si tu 
     const newFiche = { ...parsed, id: parsed.id || uuidv4() };
     setFiche(newFiche);
     try {
-      const { error } = await supabase.from("fiches").insert([newFiche]);
+      const { error } = await supabase.from("fiches").insert([{
+        id: newFiche.id,
+        kanji: newFiche.kanji || "",
+        kana: newFiche.kana || "",
+        fr: newFiche.fr || "",
+        analyse: newFiche.analyse || "",
+        humour: newFiche.humour || "",
+        exemples: JSON.stringify(newFiche.exemples || [])
+       }]);
       if (error) throw error;
     } catch (err) {
       console.error("Erreur ajout fiche :", err);
