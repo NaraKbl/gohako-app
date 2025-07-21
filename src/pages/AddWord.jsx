@@ -1,13 +1,12 @@
-// src/pages/AddWord.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import "./AddWord.css";
 import writingPng from "../assets/gohakowrite.png";
+import { supabase } from "../supabaseClient";
 
 export default function AddWord() {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-  const API_URL = "https://api-gohako.onrender.com";
   const navigate = useNavigate();
 
   const [input, setInput] = useState("");
@@ -19,7 +18,6 @@ export default function AddWord() {
     setLoading(true);
     setFiche(null);
 
-    // 1️⃣ Prépare les messages
     const messages = [
       {
         role: "system",
@@ -46,7 +44,6 @@ Ne mets aucun texte en dehors de cet objet JSON. Dans la partie "phrase", si tu 
       }
     ];
 
-    // 2️⃣ Appel OpenAI + extraction JSON
     let parsed;
     try {
       const resAI = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -74,17 +71,11 @@ Ne mets aucun texte en dehors de cet objet JSON. Dans la partie "phrase", si tu 
       return;
     }
 
-    // 3️⃣ Préparation + POST vers json-server (Render)
     const newFiche = { ...parsed, id: uuidv4() };
     setFiche(newFiche);
     try {
-      const resPost = await fetch(`${API_URL}/fiches`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newFiche),
-        cache: "no-store"
-      });
-      if (!resPost.ok) throw new Error(`POST /fiches ${resPost.status}`);
+      const { error } = await supabase.from("fiches").insert([newFiche]);
+      if (error) throw error;
     } catch (err) {
       console.error("Erreur ajout fiche :", err);
       alert(`Erreur création fiche :\n${err.message}`);
@@ -102,7 +93,7 @@ Ne mets aucun texte en dehors de cet objet JSON. Dans la partie "phrase", si tu 
         type="text"
         placeholder="Ex : 美味しい"
         value={input}
-        onChange={e => setInput(e.target.value)}
+        onChange={(e) => setInput(e.target.value)}
         className="addword-input"
         disabled={loading}
       />
@@ -166,3 +157,4 @@ Ne mets aucun texte en dehors de cet objet JSON. Dans la partie "phrase", si tu 
     </div>
   );
 }
+
