@@ -17,6 +17,7 @@ export default function WordDetail() {
 
   // Charger la fiche et ses questions
   useEffect(() => {
+    console.log("🔍 id reçu :", id);
     const load = async () => {
       setLoading(true);
       setError(false);
@@ -24,8 +25,11 @@ export default function WordDetail() {
         const { data: ficheData, error: ficheErr } = await supabase
           .from("fiches")
           .select("*")
-          .eq("id", id)
+          .filter("id", "eq", id)
           .single();
+          console.log("➡️ Résultat ficheData :", ficheData);
+          console.log("⚠️ ficheErr :", ficheErr);
+
         if (ficheErr || !ficheData) throw new Error("Mot introuvable");
         setFiche(ficheData);
 
