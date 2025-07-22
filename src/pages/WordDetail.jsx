@@ -32,7 +32,12 @@ useEffect(() => {
       console.log("⚠️ ficheErr :", ficheErr);
 
       if (ficheErr || !ficheData) throw new Error("Mot introuvable");
-      setFiche(ficheData);
+
+      setFiche({
+        ...ficheData,
+        exemples: JSON.parse(ficheData.exemples),  // ← parse ici
+      });
+
 
       // Chargement des questions liées (par wordId, qui est un UUID → besoin de guillemets)
       const { data: qData, error: qErr } = await supabase
@@ -49,6 +54,7 @@ useEffect(() => {
       setLoading(false);
     }
   };
+
   load();
 }, [id]);
 
