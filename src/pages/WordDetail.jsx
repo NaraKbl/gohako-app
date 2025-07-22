@@ -25,7 +25,7 @@ export default function WordDetail() {
         const { data: ficheData, error: ficheErr } = await supabase
           .from("fiches")
           .select("*")
-          .filter("id", "eq", id)
+          .filter("wordId", "eq", id)
           .single();
           console.log("➡️ Résultat ficheData :", ficheData);
           console.log("⚠️ ficheErr :", ficheErr);
