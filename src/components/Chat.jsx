@@ -27,13 +27,23 @@ export default function Chat() {
           .select("*")
           .order("id", { ascending: false });
         if (error) throw error;
-        setConversations(data);
+
+        // 🔁 Parser les messages JSON
+        const parsed = data.map(conv => ({
+          ...conv,
+          messages: typeof conv.messages === "string"
+            ? JSON.parse(conv.messages)
+            : conv.messages
+        }));
+
+        setConversations(parsed);
       } catch (err) {
         console.error("Erreur chargement conversations :", err);
       }
     };
     load();
   }, []);
+
 
   const toggleSidebar = () => {
     setIsSidebarOpen((open) => !open);
