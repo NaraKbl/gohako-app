@@ -38,7 +38,7 @@ useEffect(() => {
       const { data: qData, error: qErr } = await supabase
         .from("questions")
         .select("*")
-        .eq("wordId", `"${id}"`)
+        .eq("wordId", id)
         .order("created_at", { ascending: true });
       if (qErr) throw qErr;
       setQuestions(qData || []);
