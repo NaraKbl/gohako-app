@@ -71,10 +71,7 @@ Ne mets aucun texte en dehors de cet objet JSON. Dans la partie "phrase", si tu 
       return;
     }
 
-    const newFiche = { 
-      ...parsed,
-       id: uuidv4()
-      };
+    const newFiche = { ...parsed, id: uuidv4() };
     setFiche(newFiche);
     try {
       const { error } = await supabase.from("fiches").insert([{
