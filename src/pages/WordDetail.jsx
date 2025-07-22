@@ -16,39 +16,42 @@ export default function WordDetail() {
   const [showModal, setShowModal] = useState(false);
 
   // Charger la fiche et ses questions
-  useEffect(() => {
-    console.log("🔍 id reçu :", id);
-    const load = async () => {
-      setLoading(true);
-      setError(false);
-      try {
-        const { data: ficheData, error: ficheErr } = await supabase
-          .from("fiches")
-          .select("*")
-          .filter("wordId", "eq", id)
-          .single();
-          console.log("➡️ Résultat ficheData :", ficheData);
-          console.log("⚠️ ficheErr :", ficheErr);
+useEffect(() => {
+  console.log("🔍 id reçu :", id);
+  const load = async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      // Chargement de la fiche (par son ID)
+      const { data: ficheData, error: ficheErr } = await supabase
+        .from("fiches")
+        .select("*")
+        .eq("id", id)
+        .single();
+      console.log("➡️ Résultat ficheData :", ficheData);
+      console.log("⚠️ ficheErr :", ficheErr);
 
-        if (ficheErr || !ficheData) throw new Error("Mot introuvable");
-        setFiche(ficheData);
+      if (ficheErr || !ficheData) throw new Error("Mot introuvable");
+      setFiche(ficheData);
 
-        const { data: qData, error: qErr } = await supabase
-          .from("questions")
-          .select("*")
-          .eq("wordId", id)
-          .order("created_at", { ascending: true });
-        if (qErr) throw qErr;
-        setQuestions(qData || []);
-      } catch (err) {
-        console.error("Erreur chargement WordDetail :", err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [id]);
+      // Chargement des questions liées (par wordId, qui est un UUID → besoin de guillemets)
+      const { data: qData, error: qErr } = await supabase
+        .from("questions")
+        .select("*")
+        .eq("wordId", `"${id}"`)
+        .order("created_at", { ascending: true });
+      if (qErr) throw qErr;
+      setQuestions(qData || []);
+    } catch (err) {
+      console.error("Erreur chargement WordDetail :", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+  load();
+}, [id]);
+
 
   const handleNewQuestion = (savedQ) => {
     setQuestions(prev => [...prev, savedQ]);
