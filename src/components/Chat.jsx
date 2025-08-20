@@ -121,7 +121,13 @@ export default function Chat({ word }) {
         firstMsg.length > 20 ? `${firstMsg.slice(0, 20)}...` : firstMsg;
     }
 
-    const newConv = { id, title, messages };
+    const newConv = {
+      id,
+      title,
+      messages,
+      wordId: word?.id || null
+    };
+
 
     try {
       const { data, error } = await supabase
