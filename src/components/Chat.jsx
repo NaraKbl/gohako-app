@@ -6,7 +6,7 @@ import Mascotte from "../components/Mascotte";
 import AnswerImg from "../assets/gohakoface.png";
 import { supabase } from "../supabase";
 
-export default function Chat() {
+export default function Chat({ word }) {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 
   const [conversations, setConversations] = useState([]);
